@@ -82,6 +82,9 @@ namespace RosSharp.RosBridgeClient
     {
         internal abstract string Id { get; }
         internal abstract string Topic { get; }
+#if ROS2
+        internal abstract QOS Qos_Setting { get; }
+#endif
 
         internal abstract Communication Publish(Message message);
 
@@ -125,7 +128,9 @@ namespace RosSharp.RosBridgeClient
         internal abstract string Id { get; }
         internal abstract string Topic { get; }
         internal abstract Type TopicType { get; }
-
+#if ROS2
+        internal abstract QOS QosSetting { get; }
+#endif
         internal abstract void Receive(string message, ISerializer serializer);
 
         internal Unsubscription Unsubscribe()
@@ -139,7 +144,9 @@ namespace RosSharp.RosBridgeClient
         internal override string Id { get; }
         internal override string Topic { get; }
         internal override Type TopicType { get { return typeof(T); } }
-
+#if ROS2
+        internal override QOS QosSetting { get; }
+#endif
         internal SubscriptionHandler<T> SubscriptionHandler { get; }
 
         private bool _doEnsureThreadSafety = false;
@@ -162,6 +169,7 @@ namespace RosSharp.RosBridgeClient
             Id = id;
             Topic = topic;
             SubscriptionHandler = subscriptionHandler;
+            QosSetting = qos_setting;
             subscription = new Subscription(id, Topic, GetRosName<T>(), throttle_rate, queue_length, fragment_size, compression, qos_setting);
 
             SetReceiveMethod();
