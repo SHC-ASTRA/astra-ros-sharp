@@ -1,4 +1,4 @@
-﻿/*
+/*
 © Siemens AG, 2017-2019
 Author: Dr. Martin Bischoff (martin.bischoff@siemens.com)
 
@@ -13,28 +13,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 - Added option to ensure thread safety in Subscriber class.
-    © Siemens AG 2024, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
+   © Siemens AG 2024, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 
 - Added ROS2 action support for actions: Action Consumer and Provider classes and their respective delegates.
-    - Added ActionResultResponseHandler<TActionResult> delegate.
-        - Handles action result responses, allowing the client to process the final result of an action.
-    - Added ActionFeedbackResponseHandler<TActionFeedback> delegate.
-        - Handles action feedback responses, enabling the client to receive periodic updates on the progress of an action.
-    - Added ActionCancelResponseHandler<TActionResult> delegate.
-        - Handles action cancel responses, allowing the client to process the result of a cancel request for an action.
-    - Added SendActionGoalHandler<TActionGoal> delegate.
-        - Handles sending action goals, enabling the client to send a goal for a specific action.
-    - Added CancelActionGoalHandler delegate.
-        - Handles canceling action goals, allowing the client to cancel a previously sent goal for an action.
-    - Added ActionProvider abstract class.
-        - Manages action advertisement, goal reception, and feedback/result responses on the provider side.
-    - Added ActionProvider<TActionGoal> class.
-        - Implements ActionProvider for specific action goals, handling goal reception and feedback/result responses.
-    - Added ActionConsumer abstract class.
-        - Manages action goal requests, feedback/result consumption, and cancel requests on the consumer side.
-    - Added ActionConsumer<TActionResult, TActionFeedback> class.
-        - Implements ActionConsumer for specific action results and feedback, handling goal requests, feedback/result consumption, and cancel requests.
-    © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
+   - Added ActionResultResponseHandler<TActionResult> delegate.
+       - Handles action result responses, allowing the client to process the final result of an action.
+   - Added ActionFeedbackResponseHandler<TActionFeedback> delegate.
+       - Handles action feedback responses, enabling the client to receive periodic updates on the progress of an action.
+   - Added ActionCancelResponseHandler<TActionResult> delegate.
+       - Handles action cancel responses, allowing the client to process the result of a cancel request for an action.
+   - Added SendActionGoalHandler<TActionGoal> delegate.
+       - Handles sending action goals, enabling the client to send a goal for a specific action.
+   - Added CancelActionGoalHandler delegate.
+       - Handles canceling action goals, allowing the client to cancel a previously sent goal for an action.
+   - Added ActionProvider abstract class.
+       - Manages action advertisement, goal reception, and feedback/result responses on the provider side.
+   - Added ActionProvider<TActionGoal> class.
+       - Implements ActionProvider for specific action goals, handling goal reception and feedback/result responses.
+   - Added ActionConsumer abstract class.
+       - Manages action goal requests, feedback/result consumption, and cancel requests on the consumer side.
+   - Added ActionConsumer<TActionResult, TActionFeedback> class.
+       - Implements ActionConsumer for specific action results and feedback, handling goal requests, feedback/result consumption, and cancel requests.
+   © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 */
 
 //using RosSharp.RosBridgeClient.Actionlib;
@@ -51,7 +51,7 @@ namespace RosSharp.RosBridgeClient
 
     public delegate bool ServiceCallHandler<Tin, Tout>(Tin tin, out Tout tout) where Tin : Message where Tout : Message;
 
-#region ActionHandlers
+    #region ActionHandlers
 #if ROS2
 
     public delegate void ActionResultResponseHandler<TActionResult>(TActionResult t)
@@ -69,7 +69,7 @@ namespace RosSharp.RosBridgeClient
     public delegate void CancelActionGoalHandler(string frameId, string action); // todo: there is no message type for cancel action goal
 
 #endif
-#endregion
+    #endregion
 
     internal abstract class Communicator
     {
@@ -95,13 +95,24 @@ namespace RosSharp.RosBridgeClient
     {
         internal override string Id { get; }
         internal override string Topic { get; }
+#if ROS2
+        internal override QOS Qos_Setting { get; }
 
+        internal Publisher(string id, string topic, out Advertisement advertisement, QOS qos_setting = null)
+        {
+            Id = id;
+            Topic = topic;
+            Qos_Setting = qos_setting;
+            advertisement = new Advertisement(Id, Topic, GetRosName<T>(), Qos_Setting);
+        }
+#else
         internal Publisher(string id, string topic, out Advertisement advertisement)
         {
             Id = id;
             Topic = topic;
             advertisement = new Advertisement(Id, Topic, GetRosName<T>());
         }
+#endif
 
         internal override Communication Publish(Message message)
         {
@@ -137,7 +148,7 @@ namespace RosSharp.RosBridgeClient
             get => _doEnsureThreadSafety;
             set
             {
-                _doEnsureThreadSafety= value;
+                _doEnsureThreadSafety = value;
                 SetReceiveMethod();
             }
         }
@@ -145,6 +156,17 @@ namespace RosSharp.RosBridgeClient
         private readonly object _lock = new object();
         private Action<string, ISerializer> _receiveMethod;
 
+#if ROS2
+        internal Subscriber(string id, string topic, SubscriptionHandler<T> subscriptionHandler, out Subscription subscription, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", QOS qos_setting = null)
+        {
+            Id = id;
+            Topic = topic;
+            SubscriptionHandler = subscriptionHandler;
+            subscription = new Subscription(id, Topic, GetRosName<T>(), throttle_rate, queue_length, fragment_size, compression, qos_setting);
+
+            SetReceiveMethod();
+        }
+#else
         internal Subscriber(string id, string topic, SubscriptionHandler<T> subscriptionHandler, out Subscription subscription, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none")
         {
             Id = id;
@@ -154,6 +176,7 @@ namespace RosSharp.RosBridgeClient
 
             SetReceiveMethod();
         }
+#endif
 
         private void SetReceiveMethod()
         {
@@ -246,7 +269,7 @@ namespace RosSharp.RosBridgeClient
         }
     }
 
-#region Action
+    #region Action
 #if ROS2
 
     internal abstract class ActionProvider : Communicator
@@ -254,7 +277,7 @@ namespace RosSharp.RosBridgeClient
         internal abstract string Action { get; }
 
         // Feedback and status publication is embedded into "send_goal_response" by ROS Bridge design
-        internal abstract Communication RespondResult<TActionResult, TResult>(TActionResult ActionResult) 
+        internal abstract Communication RespondResult<TActionResult, TResult>(TActionResult ActionResult)
             where TActionResult : ActionResult<TResult>
             where TResult : Message;
         internal abstract Communication RespondFeedback<TActionFeedback, TFeedback>(TActionFeedback ActionFeedback)
@@ -270,7 +293,7 @@ namespace RosSharp.RosBridgeClient
         }
     }
 
-    internal class ActionProvider<TActionGoal> : ActionProvider 
+    internal class ActionProvider<TActionGoal> : ActionProvider
         where TActionGoal : Message
 
     {
@@ -279,7 +302,7 @@ namespace RosSharp.RosBridgeClient
         internal SendActionGoalHandler<TActionGoal> SendActionGoalHandler;
         internal CancelActionGoalHandler CancelActionGoalHandler;
 
-        internal ActionProvider(string action, 
+        internal ActionProvider(string action,
             SendActionGoalHandler<TActionGoal> sendActionGoalHandler,
             CancelActionGoalHandler cancelActionGoalHandler,
             out ActionAdvertisement actionAdvertisement)
@@ -289,9 +312,9 @@ namespace RosSharp.RosBridgeClient
             CancelActionGoalHandler = cancelActionGoalHandler;
 
             string actionGoalROSName = GetRosName<TActionGoal>();
-            actionAdvertisement = new ActionAdvertisement(action, actionGoalROSName.Substring(0, actionGoalROSName.LastIndexOf("ActionGoal"))); 
+            actionAdvertisement = new ActionAdvertisement(action, actionGoalROSName.Substring(0, actionGoalROSName.LastIndexOf("ActionGoal")));
         }
-        
+
         internal override void ListenSendGoalAction(string message, ISerializer serializer)
         {
             try
@@ -328,13 +351,13 @@ namespace RosSharp.RosBridgeClient
         {
             return new ActionResultResponse<TResult>(
                 id: ActionResult.id,
-                action: ActionResult.action, 
+                action: ActionResult.action,
                 values: ActionResult.values,
                 status: ActionResult.status,
                 result: ActionResult.result
             );
         }
-    }         
+    }
 
     internal abstract class ActionConsumer : Communicator
     {
@@ -355,7 +378,7 @@ namespace RosSharp.RosBridgeClient
 
     internal class ActionConsumer<TActionResult, TActionFeedback> : ActionConsumer
         where TActionResult : Message
-        where TActionFeedback : Message 
+        where TActionFeedback : Message
     {
         internal override string Id { get; }
         internal override string Action { get; }
@@ -433,5 +456,5 @@ namespace RosSharp.RosBridgeClient
     }
 
 #endif
-#endregion
+    #endregion
 }

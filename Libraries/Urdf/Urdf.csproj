@@ -32,7 +32,6 @@
 		<DebugSymbols>true</DebugSymbols>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<PackageIcon>images\RosSharpLogoNuget.png</PackageIcon>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
@@ -48,12 +47,7 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="..\RosSharpLogoNuget.png">
-			<Pack>True</Pack>
-			<PackagePath>\images\</PackagePath>
-		</None>
 	</ItemGroup>
-	
 	<Target Name="CopyToCombinedOutput" AfterTargets="Publish">
 		<!-- Copy the new DLLs to the combined output folder -->
 		<ItemGroup>

@@ -13,18 +13,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 - Added ROS2 action support
-    - Added `ActionAdvertisement` for advertising actions (Provider side): 
-        - Used to notify clients about the availability of a specific action with its type.  
-    - Added `ActionUnadvertisement` for unadvertising actions (Provider side): 
-        - Used to stop the advertisement of an action, removing it from the available actions list.  
-    - Added `SendActionGoal<T>` for sending action goals (Consumer side): 
-        - Allows clients to send a goal for a specific action, with optional feedback and compression settings.  
-    - Added `CancelActionGoal` for canceling action goals (Consumer side): 
-        - Enables clients to cancel a previously sent goal for an action, identified by its ID.  
-    - Added `ActionFeedbackResponse<T>` for sending feedback on actions (Provider side): 
-        - Used by the server to send periodic feedback about the progress of a goal to the client.  
-    - Added `ActionResultResponse<T>` for sending action result responses (Provider side): 
-        - Communicates the final result, status, and success or failure of an action goal to the client.  
+    - Added `ActionAdvertisement` for advertising actions (Provider side):
+        - Used to notify clients about the availability of a specific action with its type.
+    - Added `ActionUnadvertisement` for unadvertising actions (Provider side):
+        - Used to stop the advertisement of an action, removing it from the available actions list.
+    - Added `SendActionGoal<T>` for sending action goals (Consumer side):
+        - Allows clients to send a goal for a specific action, with optional feedback and compression settings.
+    - Added `CancelActionGoal` for canceling action goals (Consumer side):
+        - Enables clients to cancel a previously sent goal for an action, identified by its ID.
+    - Added `ActionFeedbackResponse<T>` for sending feedback on actions (Provider side):
+        - Used by the server to send periodic feedback about the progress of a goal to the client.
+    - Added `ActionResultResponse<T>` for sending action result responses (Provider side):
+        - Communicates the final result, status, and success or failure of an action goal to the client.
 
     © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 */
@@ -48,14 +48,26 @@ namespace RosSharp.RosBridgeClient
     internal class Advertisement : Communication
     {
         public string topic { get; set; } // required
-        public string type  { get; set; } // required
+        public string type { get; set; } // required
 
+#if ROS2
+        public QOS qos_setting { get; set; } // optional
+
+        internal Advertisement(string id, string topic, string type, QOS qos_setting = null) : base(id)
+        {
+            this.op = "advertise";
+            this.topic = topic;
+            this.type = type;
+            this.qos_setting = qos_setting;
+        }
+#else
         internal Advertisement(string id, string topic, string type) : base(id)
         {
             this.op = "advertise";
             this.topic = topic;
             this.type = type;
         }
+#endif
     }
 
     internal class Unadvertisement : Communication
@@ -91,6 +103,21 @@ namespace RosSharp.RosBridgeClient
         public int fragment_size { get; set; } // optional
         public string compression { get; set; } // optional
 
+#if ROS2
+        public QOS qos_setting { get; set; } //optional
+
+        internal Subscription(string id, string topic, string type, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", QOS qos_setting = null) : base(id)
+        {
+            this.op = "subscribe";
+            this.topic = topic;
+            this.type = type;
+            this.throttle_rate = throttle_rate;
+            this.queue_length = queue_length;
+            this.fragment_size = fragment_size;
+            this.compression = compression;
+            this.qos_setting = qos_setting;
+        }
+#else
         internal Subscription(string id, string topic, string type, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none") : base(id)
         {
             this.op = "subscribe";
@@ -101,6 +128,7 @@ namespace RosSharp.RosBridgeClient
             this.fragment_size = fragment_size;
             this.compression = compression;
         }
+#endif
     }
 
     internal class Unsubscription : Communication
@@ -115,7 +143,7 @@ namespace RosSharp.RosBridgeClient
     }
 
     internal class ServiceCall<T> : Communication where T : Message
-    { 
+    {
         public string service { get; set; } // required
         public T args { get; set; } // optional
         public int fragment_size { get; set; } // optional
@@ -150,7 +178,7 @@ namespace RosSharp.RosBridgeClient
         public string type { get; set; } // required
         public string service { get; set; } // required
 
-        internal ServiceAdvertisement(string service, string type) 
+        internal ServiceAdvertisement(string service, string type)
         {
             this.op = "advertise_service";
             this.service = service;
@@ -168,7 +196,7 @@ namespace RosSharp.RosBridgeClient
         }
     }
 
-    #if ROS2 
+#if ROS2
     #region Action
 
     // Provider side
@@ -196,7 +224,7 @@ namespace RosSharp.RosBridgeClient
             this.action = action;
         }
     }
-    
+
     // Consumer side
     internal class SendActionGoal<T> : Communication where T : Message // Message is the auto generated action goal message
     {
@@ -224,8 +252,8 @@ namespace RosSharp.RosBridgeClient
     internal class CancelActionGoal : Communication
     {
         public string action { get; set; } // required
-        
-        internal CancelActionGoal(string id, string frameId, string action) : base(id) 
+
+        internal CancelActionGoal(string id, string frameId, string action) : base(id)
         {
             this.op = "cancel_action_goal";
             this.id = frameId;  // The ID of the goal to cancel, needs to match the ID of the goal that was sent
@@ -270,5 +298,5 @@ namespace RosSharp.RosBridgeClient
 
 
     #endregion
-    #endif
+#endif
 }
