@@ -1,4 +1,4 @@
-﻿/*
+/*
 © Siemens AG, 2017-2019
 Author: Dr. Martin Bischoff (martin.bischoff@siemens.com)
 
@@ -13,19 +13,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 - Adding BSON (de-)seriliazation option
-    Shimadzu corp , 2019, Akira NODA (a-noda@shimadzu.co.jp / you.akira.noda@gmail.com)
+   Shimadzu corp , 2019, Akira NODA (a-noda@shimadzu.co.jp / you.akira.noda@gmail.com)
 
 - Added ROS2 action support:
-    - Added ActionProvider and ActionConsumer dictionaries.
-    - Added AdvertiseAction<TActionGoal, TActionFeedback, TActionResult> method.
-    - Added RespondFeedback<TActionFeedback, TFeedback> method.
-    - Added RespondResult<TActionResult, TResult> method.
-    - Added UnadvertiseAction method.
-    - Added CancelActionGoalRequest<TActionResult> method.
-    - Added SendActionGoalRequest<TActionGoal, TGoal, TActionFeedback, TActionResult> method.
-    - Added handling for send_action_goal message, cancel_action_goal message, action_feedback message, and action_result message.
+   - Added ActionProvider and ActionConsumer dictionaries.
+   - Added AdvertiseAction<TActionGoal, TActionFeedback, TActionResult> method.
+   - Added RespondFeedback<TActionFeedback, TFeedback> method.
+   - Added RespondResult<TActionResult, TResult> method.
+   - Added UnadvertiseAction method.
+   - Added CancelActionGoalRequest<TActionResult> method.
+   - Added SendActionGoalRequest<TActionGoal, TGoal, TActionFeedback, TActionResult> method.
+   - Added handling for send_action_goal message, cancel_action_goal message, action_feedback message, and action_result message.
 
-    © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
+   © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 */
 using System;
 using System.Collections.Generic;
@@ -41,7 +41,7 @@ namespace RosSharp.RosBridgeClient
         public enum SerializerEnum { Microsoft, Newtonsoft_JSON }
 
         public SerializerEnum SerializerType;
-        
+
         private readonly Dictionary<SerializerEnum, ISerializer> serializerDictionary = new Dictionary<SerializerEnum, ISerializer>()
         {
             { SerializerEnum.Microsoft, new MicrosoftSerializer()},
@@ -53,7 +53,7 @@ namespace RosSharp.RosBridgeClient
         private Dictionary<string, ServiceConsumer> ServiceConsumers = new Dictionary<string, ServiceConsumer>();
 
 #if ROS2
-        private Dictionary<string, ActionProvider> ActionProviders = new Dictionary<string, ActionProvider>(); 
+        private Dictionary<string, ActionProvider> ActionProviders = new Dictionary<string, ActionProvider>();
         private Dictionary<string, ActionConsumer> ActionConsumers = new Dictionary<string, ActionConsumer>();
 #endif
         internal ISerializer Serializer;
@@ -93,7 +93,7 @@ namespace RosSharp.RosBridgeClient
                 UnadvertiseService(ServiceProviders.First().Key);
 
 #if ROS2
-            while (ActionProviders.Count > 0)  
+            while (ActionProviders.Count > 0)
                 UnadvertiseAction(ActionProviders.First().Key);
 #endif
 
@@ -109,6 +109,20 @@ namespace RosSharp.RosBridgeClient
 
         #region Publishers
 
+#if ROS2
+    public string Advertise<T>(string topic, QOS qos_setting = null) where T : Message
+    {
+        string id = topic;
+        qos_setting ??= QOS.Presets.Default;
+
+        if (Publishers.ContainsKey(id))
+            Unadvertise(id);
+
+        Publishers.Add(id, new Publisher<T>(id, topic, out Advertisement advertisement, qos_setting));
+        Send(advertisement);
+        return id;
+    }
+#else
         public string Advertise<T>(string topic) where T : Message
         {
             string id = topic;
@@ -119,6 +133,7 @@ namespace RosSharp.RosBridgeClient
             Send(advertisement);
             return id;
         }
+#endif
 
         public void Publish(string id, Message message)
         {
@@ -135,12 +150,36 @@ namespace RosSharp.RosBridgeClient
 
         #region Subscribers
 
+#if ROS2
+        public string Subscribe<T>(string topic, SubscriptionHandler<T> subscriptionHandler, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", bool ensureThreadSafety = false, QOS qos_setting = null) where T : Message
+        {
+            string id;
+            lock (SubscriberLock)
+            {
+                id = GetUnusedCounterID(Subscribers, topic);
+                qos_setting ??= QOS.Presets.Default;
+
+                Subscription subscription;
+
+                var subscriber = new Subscriber<T>(id, topic, subscriptionHandler, out subscription, throttle_rate, queue_length, fragment_size, compression, qos_setting)
+                {
+                    DoEnsureThreadSafety = ensureThreadSafety
+                };
+
+                Subscribers.Add(id, subscriber);
+                Send(subscription);
+            }
+
+            return id;
+        }
+#else
         public string Subscribe<T>(string topic, SubscriptionHandler<T> subscriptionHandler, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", bool ensureThreadSafety = false) where T : Message
         {
             string id;
             lock (SubscriberLock)
             {
                 id = GetUnusedCounterID(Subscribers, topic);
+
                 Subscription subscription;
 
                 var subscriber = new Subscriber<T>(id, topic, subscriptionHandler, out subscription, throttle_rate, queue_length, fragment_size, compression)
@@ -151,9 +190,10 @@ namespace RosSharp.RosBridgeClient
                 Subscribers.Add(id, subscriber);
                 Send(subscription);
             }
-            
+
             return id;
         }
+#endif
 
         public void Unsubscribe(string id)
         {
@@ -240,7 +280,7 @@ namespace RosSharp.RosBridgeClient
             Send(ActionProviders[id].UnadvertiseAction());
             ActionProviders.Remove(id);
         }
-         
+
         #endregion
         #region ActionConsumers
 
@@ -298,7 +338,7 @@ namespace RosSharp.RosBridgeClient
             byte[] buffer = ((MessageEventArgs)e).RawData;
             DeserializedObject jsonElement = Serializer.Deserialize(buffer);
 
-            switch (jsonElement.GetProperty("op"))            
+            switch (jsonElement.GetProperty("op"))
             {
                 case "publish":
                     {
@@ -325,7 +365,7 @@ namespace RosSharp.RosBridgeClient
                     }
 #if ROS2
                 // Provider side
-                case "send_action_goal": 
+                case "send_action_goal":
                     {
                         string action = jsonElement.GetProperty("action");
 
