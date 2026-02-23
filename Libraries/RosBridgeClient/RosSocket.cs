@@ -26,6 +26,9 @@ limitations under the License.
    - Added handling for send_action_goal message, cancel_action_goal message, action_feedback message, and action_result message.
 
    © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
+
+- Added QOS settings support for Publishers and Subscribers
+    © ASTRA - of the Space Hardware Club at UAH 2026, Roald Schaum, roaldschaum2019@gmail.com
 */
 using System;
 using System.Collections.Generic;
