@@ -35,6 +35,9 @@ limitations under the License.
    - Added ActionConsumer<TActionResult, TActionFeedback> class.
        - Implements ActionConsumer for specific action results and feedback, handling goal requests, feedback/result consumption, and cancel requests.
    © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
+
+- Added QOS settings support for Publishers and Subscribers
+   © ASTRA - of the Space Hardware Club at UAH 2026, Roald Schaum, roaldschaum2019@gmail.com
 */
 
 //using RosSharp.RosBridgeClient.Actionlib;

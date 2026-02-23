@@ -27,6 +27,10 @@ limitations under the License.
         - Communicates the final result, status, and success or failure of an action goal to the client.
 
     © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
+
+
+- Added QOS settings support for Advertisement and Publication
+    © ASTRA - of the Space Hardware Club at UAH 2026, Roald Schaum, roaldschaum2019@gmail.com
 */
 
 
