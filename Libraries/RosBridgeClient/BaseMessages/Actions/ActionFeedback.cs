@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-- Added ROS2 action support: 
+- Added ROS2 action support:
     - Removed GoalStatus status property.
     - Added TFeedback values property.
     - Added string id property.
@@ -22,6 +22,7 @@ limitations under the License.
 
     © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 */
+#define ROS2
 
 using RosSharp.RosBridgeClient.MessageTypes.Std;
 
@@ -51,7 +52,7 @@ namespace RosSharp.RosBridgeClient
 #else
 namespace RosSharp.RosBridgeClient
 {
-    public abstract class ActionFeedback<TFeedback> : Message where TFeedback : Message 
+    public abstract class ActionFeedback<TFeedback> : Message where TFeedback : Message
     {
         public Header header { get; set; }
         public TFeedback values { get; set; }

@@ -1,3 +1,5 @@
+#define ROS2
+
 namespace RosSharp.RosBridgeClient
 {
 #if ROS2

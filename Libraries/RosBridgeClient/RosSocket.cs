@@ -27,6 +27,8 @@ limitations under the License.
 
    © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 */
+#define ROS2
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,18 +112,18 @@ namespace RosSharp.RosBridgeClient
         #region Publishers
 
 #if ROS2
-    public string Advertise<T>(string topic, QOS qos_setting = null) where T : Message
-    {
-        string id = topic;
-        qos_setting ??= QOS.Presets.Default;
+        public string Advertise<T>(string topic, QOS qos_setting = null) where T : Message
+        {
+            string id = topic;
+            qos_setting ??= QOS.Presets.Default;
 
-        if (Publishers.ContainsKey(id))
-            Unadvertise(id);
+            if (Publishers.ContainsKey(id))
+                Unadvertise(id);
 
-        Publishers.Add(id, new Publisher<T>(id, topic, out Advertisement advertisement, qos_setting));
-        Send(advertisement);
-        return id;
-    }
+            Publishers.Add(id, new Publisher<T>(id, topic, out Advertisement advertisement, qos_setting));
+            Send(advertisement);
+            return id;
+        }
 #else
         public string Advertise<T>(string topic) where T : Message
         {
@@ -291,7 +293,7 @@ namespace RosSharp.RosBridgeClient
             where TActionResult : Message
         {
             string id = GetUnusedCounterID(ActionConsumers, action);
-            ActionConsumers.Add(id , new ActionConsumer<TActionResult, Message>(
+            ActionConsumers.Add(id, new ActionConsumer<TActionResult, Message>(
                 id,
                 action,
                 actionCancelResponseHandler: actionCancelResponseHandler)
@@ -345,7 +347,9 @@ namespace RosSharp.RosBridgeClient
                         string topic = jsonElement.GetProperty("topic");
                         string msg = jsonElement.GetProperty("msg");
                         foreach (Subscriber subscriber in SubscribersOf(topic))
+                        {
                             subscriber.Receive(msg, Serializer);
+                        }
                         return;
                     }
                 case "service_response":

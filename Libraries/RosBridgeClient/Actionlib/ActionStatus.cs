@@ -19,6 +19,7 @@ limitations under the License.
     © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 */
 
+#define ROS2
 namespace RosSharp.RosBridgeClient.Actionlib
 {
 #if !ROS2

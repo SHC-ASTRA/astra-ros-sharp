@@ -31,6 +31,7 @@ limitations under the License.
     © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 */
 
+#define ROS2
 #if !ROS2
 using RosSharp.RosBridgeClient.MessageTypes.Actionlib;
 
@@ -372,7 +373,7 @@ namespace RosSharp.RosBridgeClient.Actionlib
         protected virtual void OnGoalSucceeded() { }
         protected void SetSucceeded(TResult result = null)
         {
-            if (actionStatus == ActionStatus.STATUS_EXECUTING || actionStatus == ActionStatus.STATUS_CANCELING) 
+            if (actionStatus == ActionStatus.STATUS_EXECUTING || actionStatus == ActionStatus.STATUS_CANCELING)
             {
                 UpdateAndPublishStatus(ActionStatus.STATUS_SUCCEEDED);
                 if (result != null)

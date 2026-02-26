@@ -29,6 +29,7 @@ limitations under the License.
     © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 */
 
+#define ROS2
 
 using System.Text.Json.Serialization;
 
@@ -233,7 +234,7 @@ namespace RosSharp.RosBridgeClient
         public T args { get; set; } // optional, list of json objects representing the arguments to the service
         public bool feedback { get; set; } // optional, if true, sends feedback messages over rosbridge. Defaults to false.
         public int fragment_size { get; set; } // optional, maximum size that the result and feedback messages can take before they are fragmented
-        public string compression {  get; set; } // optional, an optional string to specify the compression scheme to be used on messages. Valid values are "none" and "png"
+        public string compression { get; set; } // optional, an optional string to specify the compression scheme to be used on messages. Valid values are "none" and "png"
 
         internal SendActionGoal(string id, string action, string action_type, T args, bool feedback = false, int fragment_size = int.MaxValue, string compression = "none") : base(id)
         {

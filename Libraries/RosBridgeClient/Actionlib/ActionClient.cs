@@ -1,4 +1,4 @@
-﻿/*
+/*
 © Siemens AG, 2019
 Author: Berkay Alp Cakal (berkay_alp.cakal.ct@siemens.com)
 
@@ -13,16 +13,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 - Added ROS2 action support:
-    - The Initialize() and Terminate() methods are no longer needed.
-    - The SetActionGoal() method has been added, which allows the user to set the action goal with additional parameters such as feedback, fragment size, and compression.
-    - The SendGoal() method now uses the SendActionGoalRequest() method from the RosSocket class to send the action goal request.
-    - The CancelGoal() method now uses the CancelActionGoalRequest() method from the RosSocket class to cancel the action goal request.
-    - The StatusCallback(), FeedbackCallback(), and ResultCallback() methods have been modified to handle the new message types in ROS2.
-    - The OnStatusUpdated(), OnFeedbackReceived(), and OnResultReceived() methods are still implemented by the user to handle the status, feedback, and result respectively.
-    - The goalStatus, lastResultSuccess, and frameId variables have been added to store the goal status, last result success status, and frame ID respectively.
+   - The Initialize() and Terminate() methods are no longer needed.
+   - The SetActionGoal() method has been added, which allows the user to set the action goal with additional parameters such as feedback, fragment size, and compression.
+   - The SendGoal() method now uses the SendActionGoalRequest() method from the RosSocket class to send the action goal request.
+   - The CancelGoal() method now uses the CancelActionGoalRequest() method from the RosSocket class to cancel the action goal request.
+   - The StatusCallback(), FeedbackCallback(), and ResultCallback() methods have been modified to handle the new message types in ROS2.
+   - The OnStatusUpdated(), OnFeedbackReceived(), and OnResultReceived() methods are still implemented by the user to handle the status, feedback, and result respectively.
+   - The goalStatus, lastResultSuccess, and frameId variables have been added to store the goal status, last result success status, and frame ID respectively.
 
-    © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
+   © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 */
+#define ROS2
 
 #if !ROS2
 using RosSharp.RosBridgeClient.MessageTypes.Actionlib;
@@ -117,7 +118,7 @@ namespace RosSharp.RosBridgeClient.Actionlib
 using RosSharp.RosBridgeClient.MessageTypes.Action;
 using System;
 
-namespace RosSharp.RosBridgeClient.Actionlib 
+namespace RosSharp.RosBridgeClient.Actionlib
 {
     public abstract class ActionClient<TAction, TActionGoal, TActionResult, TActionFeedback, TGoal, TResult, TFeedback>
         where TAction : Action<TActionGoal, TActionResult, TActionFeedback, TGoal, TResult, TFeedback>
