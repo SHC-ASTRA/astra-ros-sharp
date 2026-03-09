@@ -1,3 +1,5 @@
+using static System.Math;
+
 namespace RosSharp.RosBridgeClient
 {
 #if ROS2
@@ -17,6 +19,41 @@ namespace RosSharp.RosBridgeClient
         public rmw_time_s LivelinessLeaseDuration;
 
         public bool AvoidRosNamespaceConventions;
+
+        public QOS(QOS q)
+        {
+            HistoryPolicy = q.HistoryPolicy;
+            Depth = q.Depth;
+            ReliabilityPolicy = q.ReliabilityPolicy;
+            DurabilityPolicy = q.DurabilityPolicy;
+            Deadline = q.Deadline;
+            Lifespan = q.Lifespan;
+            LivelinessPolicy = q.LivelinessPolicy;
+            LivelinessLeaseDuration = q.LivelinessLeaseDuration;
+            AvoidRosNamespaceConventions = q.AvoidRosNamespaceConventions;
+        }
+
+        public QOS(
+            Policy.History history,
+            uint depth,
+            Policy.Reliability reliability,
+            Policy.Durability durability,
+            double deadline,
+            double lifespan,
+            Policy.Liveliness liveliness,
+            double leaseDuration,
+            bool avoidRosNamespaceConventions)
+        {
+            HistoryPolicy = history;
+            Depth = depth;
+            ReliabilityPolicy = reliability;
+            DurabilityPolicy = durability;
+            Deadline = rmw_time_s.DoubleToTime(deadline);
+            Lifespan = rmw_time_s.DoubleToTime(lifespan);
+            LivelinessPolicy = liveliness;
+            LivelinessLeaseDuration = rmw_time_s.DoubleToTime(leaseDuration);
+            AvoidRosNamespaceConventions = avoidRosNamespaceConventions;
+        }
 
         public QOS(
             Policy.History history,
@@ -45,109 +82,109 @@ namespace RosSharp.RosBridgeClient
         {
             /// <summary> Default QOS profile </summary>
             public static readonly QOS Default = new QOS(
-                Policy.History.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                Policy.History.KEEP_LAST,
                 10,
-                Policy.Reliability.RMW_QOS_POLICY_RELIABILITY_RELIABLE,
-                Policy.Durability.RMW_QOS_POLICY_DURABILITY_VOLATILE,
-                Policy.RMW_DURATION_UNSPECIFIED,
-                Policy.RMW_DURATION_UNSPECIFIED,
-                Policy.Liveliness.RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-                Policy.RMW_DURATION_UNSPECIFIED,
+                Policy.Reliability.RELIABLE,
+                Policy.Durability.VOLATILE,
+                Policy.DURATION_UNSPECIFIED,
+                Policy.DURATION_UNSPECIFIED,
+                Policy.Liveliness.SYSTEM_DEFAULT,
+                Policy.DURATION_UNSPECIFIED,
                 false);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS SensorData = new QOS(
-                Policy.History.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                Policy.History.KEEP_LAST,
                 5,
-                Policy.Reliability.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
-                Policy.Durability.RMW_QOS_POLICY_DURABILITY_VOLATILE,
-                Policy.RMW_DURATION_UNSPECIFIED,
-                Policy.RMW_DURATION_UNSPECIFIED,
-                Policy.Liveliness.RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-                Policy.RMW_DURATION_UNSPECIFIED,
+                Policy.Reliability.BEST_EFFORT,
+                Policy.Durability.VOLATILE,
+                Policy.DURATION_UNSPECIFIED,
+                Policy.DURATION_UNSPECIFIED,
+                Policy.Liveliness.SYSTEM_DEFAULT,
+                Policy.DURATION_UNSPECIFIED,
                 false);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS Services = new QOS(
-                Policy.History.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                Policy.History.KEEP_LAST,
                 10,
-                Policy.Reliability.RMW_QOS_POLICY_RELIABILITY_RELIABLE,
-                Policy.Durability.RMW_QOS_POLICY_DURABILITY_VOLATILE,
-                Policy.RMW_DURATION_UNSPECIFIED,
-                Policy.RMW_DURATION_UNSPECIFIED,
-                Policy.Liveliness.RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-                Policy.RMW_DURATION_UNSPECIFIED,
+                Policy.Reliability.RELIABLE,
+                Policy.Durability.VOLATILE,
+                Policy.DURATION_UNSPECIFIED,
+                Policy.DURATION_UNSPECIFIED,
+                Policy.Liveliness.SYSTEM_DEFAULT,
+                Policy.DURATION_UNSPECIFIED,
                 false);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS ParameterEvents = new QOS(
-                Policy.History.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                Policy.History.KEEP_LAST,
                 1000,
-                Policy.Reliability.RMW_QOS_POLICY_RELIABILITY_RELIABLE,
-                Policy.Durability.RMW_QOS_POLICY_DURABILITY_VOLATILE,
-                Policy.RMW_DURATION_UNSPECIFIED,
-                Policy.RMW_DURATION_UNSPECIFIED,
-                Policy.Liveliness.RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-                Policy.RMW_DURATION_UNSPECIFIED,
+                Policy.Reliability.RELIABLE,
+                Policy.Durability.VOLATILE,
+                Policy.DURATION_UNSPECIFIED,
+                Policy.DURATION_UNSPECIFIED,
+                Policy.Liveliness.SYSTEM_DEFAULT,
+                Policy.DURATION_UNSPECIFIED,
                 false);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS Rosout = new QOS(
-                Policy.History.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                Policy.History.KEEP_LAST,
                 1000,
-                Policy.Reliability.RMW_QOS_POLICY_RELIABILITY_RELIABLE,
-                Policy.Durability.RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
-                Policy.RMW_DURATION_UNSPECIFIED,
+                Policy.Reliability.RELIABLE,
+                Policy.Durability.TRANSIENT_LOCAL,
+                Policy.DURATION_UNSPECIFIED,
                 new rmw_time_s(10, 0),
-                Policy.Liveliness.RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-                Policy.RMW_DURATION_UNSPECIFIED,
+                Policy.Liveliness.SYSTEM_DEFAULT,
+                Policy.DURATION_UNSPECIFIED,
                 false);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS SystemDefault = new QOS(
-                Policy.History.RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT,
+                Policy.History.SYSTEM_DEFAULT,
                 0,
-                Policy.Reliability.RMW_QOS_POLICY_RELIABILITY_SYSTEM_DEFAULT,
-                Policy.Durability.RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT,
-                Policy.RMW_DURATION_UNSPECIFIED,
-                Policy.RMW_DURATION_UNSPECIFIED,
-                Policy.Liveliness.RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-                Policy.RMW_DURATION_UNSPECIFIED,
+                Policy.Reliability.SYSTEM_DEFAULT,
+                Policy.Durability.SYSTEM_DEFAULT,
+                Policy.DURATION_UNSPECIFIED,
+                Policy.DURATION_UNSPECIFIED,
+                Policy.Liveliness.SYSTEM_DEFAULT,
+                Policy.DURATION_UNSPECIFIED,
                 false);
         }
 
         public static class Policy
         {
-            public static rmw_time_s RMW_DURATION_UNSPECIFIED = new rmw_time_s(0ul, 0ul);
-            public static rmw_time_s RMW_DURATION_INFINITE = new rmw_time_s(9223372036ul, 854775807ul);
+            public static rmw_time_s DURATION_UNSPECIFIED = new rmw_time_s(0ul, 0ul);
+            public static rmw_time_s DURATION_INFINITE = new rmw_time_s(9223372036ul, 854775807ul);
 
             public enum History
             {
                 /// Implementation default for history policy
-                RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT,
+                SYSTEM_DEFAULT,
 
                 /// Only store up to a maximum number of samples, dropping oldest once max is exceeded
-                RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                KEEP_LAST,
 
                 /// Store all samples, subject to resource limits
-                RMW_QOS_POLICY_HISTORY_KEEP_ALL,
+                KEEP_ALL,
 
                 /// History policy has not yet been set
-                RMW_QOS_POLICY_HISTORY_UNKNOWN
+                UNKNOWN
             }
             public enum Reliability
             {
                 /// Implementation specific default
-                RMW_QOS_POLICY_RELIABILITY_SYSTEM_DEFAULT,
+                SYSTEM_DEFAULT,
 
                 /// Guarantee that samples are delivered, may retry multiple times.
-                RMW_QOS_POLICY_RELIABILITY_RELIABLE,
+                RELIABLE,
 
                 /// Attempt to deliver samples, but some may be lost if the network is not robust
-                RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
+                BEST_EFFORT,
 
                 /// Reliability policy has not yet been set
-                RMW_QOS_POLICY_RELIABILITY_UNKNOWN,
+                UNKNOWN,
 
                 /// Will match the majority of endpoints and use a reliable policy if possible
                 /**
@@ -166,21 +203,21 @@ namespace RosSharp.RosBridgeClient
                  * Therefore, this policy should be used with care since non-deterministic behavior
                  * can occur due to races with discovery.
                  */
-                RMW_QOS_POLICY_RELIABILITY_BEST_AVAILABLE
+                BEST_AVAILABLE
             }
             public enum Durability
             {
                 /// Impplementation specific default
-                RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT,
+                SYSTEM_DEFAULT,
 
                 /// The rmw publisher is responsible for persisting samples for “late-joining” subscribers
-                RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL,
+                TRANSIENT_LOCAL,
 
                 /// Samples are not persistent
-                RMW_QOS_POLICY_DURABILITY_VOLATILE,
+                VOLATILE,
 
                 /// Durability policy has not yet been set
-                RMW_QOS_POLICY_DURABILITY_UNKNOWN,
+                UNKNOWN,
 
                 /// Will match the majority of endpoints and use a transient local policy if possible
                 /**
@@ -202,25 +239,25 @@ namespace RosSharp.RosBridgeClient
                  * Therefore, this policy should be used with care since non-deterministic behavior
                  * can occur due to races with discovery.
                  */
-                RMW_QOS_POLICY_DURABILITY_BEST_AVAILABLE
+                BEST_AVAILABLE
             }
 
             public enum Liveliness
             {
                 /// Implementation specific default
-                RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT = 0,
+                SYSTEM_DEFAULT = 0,
 
                 /// The signal that establishes a Topic is alive comes from the ROS rmw layer.
-                RMW_QOS_POLICY_LIVELINESS_AUTOMATIC = 1,
+                AUTOMATIC = 1,
 
                 /// The signal that establishes a Topic is alive is at the Topic level. Only publishing a message
                 /// on the Topic or an explicit signal from the application to assert liveliness on the Topic
                 /// will mark the Topic as being alive.
                 // Using `3` for backwards compatibility.
-                RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC = 3,
+                MANUAL_BY_TOPIC = 3,
 
                 /// Liveliness policy has not yet been set
-                RMW_QOS_POLICY_LIVELINESS_UNKNOWN = 4,
+                UNKNOWN = 4,
 
                 /// Will match the majority of endpoints and use a manual by topic policy if possible
                 /**
@@ -239,18 +276,25 @@ namespace RosSharp.RosBridgeClient
                  * Therefore, this policy should be used with care since non-deterministic behavior
                  * can occur due to races with discovery.
                  */
-                RMW_QOS_POLICY_LIVELINESS_BEST_AVAILABLE = 5
+                BEST_AVAILABLE = 5
             }
         }
 
         public class rmw_time_s
         {
-            public ulong sec;
-            public ulong nsec;
-            public rmw_time_s(ulong s, ulong n)
+            public ulong Seconds;
+            public ulong Nanoseconds;
+            public rmw_time_s(ulong seconds, ulong nanoseconds)
             {
-                sec = s;
-                nsec = n;
+                Seconds = seconds;
+                Nanoseconds = nanoseconds;
+            }
+
+            public static rmw_time_s DoubleToTime(double time)
+            {
+                ulong seconds = (ulong)(time);
+                ulong nseconds = (ulong)((time - seconds) * 1000000000);
+                return new rmw_time_s(seconds, nseconds);
             }
         }
     }
