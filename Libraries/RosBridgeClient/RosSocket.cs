@@ -26,6 +26,10 @@ limitations under the License.
    - Added handling for send_action_goal message, cancel_action_goal message, action_feedback message, and action_result message.
 
    © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
+
+- Added QOS settings support for Publishers and Subscribers
+
+   © ASTRA - of the Space Hardware Club at UAH 2026, Roald Schaum, roaldschaum2019@gmail.com
 */
 using System;
 using System.Collections.Generic;
@@ -110,18 +114,18 @@ namespace RosSharp.RosBridgeClient
         #region Publishers
 
 #if ROS2
-    public string Advertise<T>(string topic, QOS qos_setting = null) where T : Message
-    {
-        string id = topic;
-        qos_setting ??= QOS.Presets.Default;
+        public string Advertise<T>(string topic, QOS qos_setting = null) where T : Message
+        {
+            string id = topic;
+            qos_setting ??= QOS.Presets.Default;
 
-        if (Publishers.ContainsKey(id))
-            Unadvertise(id);
+            if (Publishers.ContainsKey(id))
+                Unadvertise(id);
 
-        Publishers.Add(id, new Publisher<T>(id, topic, out Advertisement advertisement, qos_setting));
-        Send(advertisement);
-        return id;
-    }
+            Publishers.Add(id, new Publisher<T>(id, topic, out Advertisement advertisement, qos_setting));
+            Send(advertisement);
+            return id;
+        }
 #else
         public string Advertise<T>(string topic) where T : Message
         {
@@ -291,7 +295,7 @@ namespace RosSharp.RosBridgeClient
             where TActionResult : Message
         {
             string id = GetUnusedCounterID(ActionConsumers, action);
-            ActionConsumers.Add(id , new ActionConsumer<TActionResult, Message>(
+            ActionConsumers.Add(id, new ActionConsumer<TActionResult, Message>(
                 id,
                 action,
                 actionCancelResponseHandler: actionCancelResponseHandler)

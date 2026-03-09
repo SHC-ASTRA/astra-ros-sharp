@@ -27,6 +27,10 @@ limitations under the License.
         - Communicates the final result, status, and success or failure of an action goal to the client.
 
     © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
+
+- Added QOS settings support for Advertisement and Publication
+
+    © ASTRA - of the Space Hardware Club at UAH 2026, Roald Schaum, roaldschaum2019@gmail.com
 */
 
 
@@ -233,7 +237,7 @@ namespace RosSharp.RosBridgeClient
         public T args { get; set; } // optional, list of json objects representing the arguments to the service
         public bool feedback { get; set; } // optional, if true, sends feedback messages over rosbridge. Defaults to false.
         public int fragment_size { get; set; } // optional, maximum size that the result and feedback messages can take before they are fragmented
-        public string compression {  get; set; } // optional, an optional string to specify the compression scheme to be used on messages. Valid values are "none" and "png"
+        public string compression { get; set; } // optional, an optional string to specify the compression scheme to be used on messages. Valid values are "none" and "png"
 
         internal SendActionGoal(string id, string action, string action_type, T args, bool feedback = false, int fragment_size = int.MaxValue, string compression = "none") : base(id)
         {
