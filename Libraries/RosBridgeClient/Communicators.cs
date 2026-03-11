@@ -37,7 +37,7 @@ limitations under the License.
    © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 
 - Added QOS settings support for Publishers and Subscribers
-   © ASTRA - of the Space Hardware Club at UAH 2026, Roald Schaum, roaldschaum2019@gmail.com
+    © ASTRA - of the Space Hardware Club at UAH 2026, Roald Schaum, roaldschaum2019@gmail.com
 */
 
 //using RosSharp.RosBridgeClient.Actionlib;
@@ -86,7 +86,7 @@ namespace RosSharp.RosBridgeClient
         internal abstract string Id { get; }
         internal abstract string Topic { get; }
 #if ROS2
-        internal abstract QOS Qos_Setting { get; }
+        internal abstract QOS Qos { get; }
 #endif
 
         internal abstract Communication Publish(Message message);
@@ -102,14 +102,14 @@ namespace RosSharp.RosBridgeClient
         internal override string Id { get; }
         internal override string Topic { get; }
 #if ROS2
-        internal override QOS Qos_Setting { get; }
+        internal override QOS Qos { get; }
 
-        internal Publisher(string id, string topic, out Advertisement advertisement, QOS qos_setting = null)
+        internal Publisher(string id, string topic, out Advertisement advertisement, QOS qos_profile = null)
         {
             Id = id;
             Topic = topic;
-            Qos_Setting = qos_setting;
-            advertisement = new Advertisement(Id, Topic, GetRosName<T>(), Qos_Setting);
+            Qos = qos_profile;
+            advertisement = new Advertisement(Id, Topic, GetRosName<T>(), Qos);
         }
 #else
         internal Publisher(string id, string topic, out Advertisement advertisement)
@@ -132,7 +132,7 @@ namespace RosSharp.RosBridgeClient
         internal abstract string Topic { get; }
         internal abstract Type TopicType { get; }
 #if ROS2
-        internal abstract QOS QosSetting { get; }
+        internal abstract QOS Qos { get; }
 #endif
         internal abstract void Receive(string message, ISerializer serializer);
 
@@ -148,7 +148,7 @@ namespace RosSharp.RosBridgeClient
         internal override string Topic { get; }
         internal override Type TopicType { get { return typeof(T); } }
 #if ROS2
-        internal override QOS QosSetting { get; }
+        internal override QOS Qos { get; }
 #endif
         internal SubscriptionHandler<T> SubscriptionHandler { get; }
 
@@ -167,13 +167,13 @@ namespace RosSharp.RosBridgeClient
         private Action<string, ISerializer> _receiveMethod;
 
 #if ROS2
-        internal Subscriber(string id, string topic, SubscriptionHandler<T> subscriptionHandler, out Subscription subscription, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", QOS qos_setting = null)
+        internal Subscriber(string id, string topic, SubscriptionHandler<T> subscriptionHandler, out Subscription subscription, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", QOS qos_profile = null)
         {
             Id = id;
             Topic = topic;
             SubscriptionHandler = subscriptionHandler;
-            QosSetting = qos_setting;
-            subscription = new Subscription(id, Topic, GetRosName<T>(), throttle_rate, queue_length, fragment_size, compression, qos_setting);
+            Qos = qos_profile;
+            subscription = new Subscription(id, Topic, GetRosName<T>(), throttle_rate, queue_length, fragment_size, compression, qos_profile);
 
             SetReceiveMethod();
         }

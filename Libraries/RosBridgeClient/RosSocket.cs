@@ -28,7 +28,8 @@ limitations under the License.
    © Siemens AG 2025, Mehmet Emre Cakal, emre.cakal@siemens.com/m.emrecakal@gmail.com
 
 - Added QOS settings support for Publishers and Subscribers
-    © ASTRA - of the Space Hardware Club at UAH 2026, Roald Schaum, roaldschaum2019@gmail.com
+
+   © ASTRA - of the Space Hardware Club at UAH 2026, Roald Schaum, roaldschaum2019@gmail.com
 */
 using System;
 using System.Collections.Generic;
@@ -62,7 +63,7 @@ namespace RosSharp.RosBridgeClient
         internal ISerializer Serializer;
         private object SubscriberLock = new object();
 
-        public RosSocket(IProtocol protocol, SerializerEnum serializer = SerializerEnum.Microsoft)
+        public RosSocket(IProtocol protocol, SerializerEnum serializer = SerializerEnum.Newtonsoft_JSON)
         {
             this.protocol = protocol;
 
@@ -113,18 +114,17 @@ namespace RosSharp.RosBridgeClient
         #region Publishers
 
 #if ROS2
-    public string Advertise<T>(string topic, QOS qos_setting = null) where T : Message
-    {
-        string id = topic;
-        qos_setting ??= QOS.Presets.Default;
+        public string Advertise<T>(string topic, QOS qos_profile = null) where T : Message
+        {
+            string id = topic;
 
-        if (Publishers.ContainsKey(id))
-            Unadvertise(id);
+            if (Publishers.ContainsKey(id))
+                Unadvertise(id);
 
-        Publishers.Add(id, new Publisher<T>(id, topic, out Advertisement advertisement, qos_setting));
-        Send(advertisement);
-        return id;
-    }
+            Publishers.Add(id, new Publisher<T>(id, topic, out Advertisement advertisement, qos_profile));
+            Send(advertisement);
+            return id;
+        }
 #else
         public string Advertise<T>(string topic) where T : Message
         {
@@ -154,17 +154,16 @@ namespace RosSharp.RosBridgeClient
         #region Subscribers
 
 #if ROS2
-        public string Subscribe<T>(string topic, SubscriptionHandler<T> subscriptionHandler, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", bool ensureThreadSafety = false, QOS qos_setting = null) where T : Message
+        public string Subscribe<T>(string topic, SubscriptionHandler<T> subscriptionHandler, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", bool ensureThreadSafety = false, QOS qos_profile = null) where T : Message
         {
             string id;
             lock (SubscriberLock)
             {
                 id = GetUnusedCounterID(Subscribers, topic);
-                qos_setting ??= QOS.Presets.Default;
 
                 Subscription subscription;
 
-                var subscriber = new Subscriber<T>(id, topic, subscriptionHandler, out subscription, throttle_rate, queue_length, fragment_size, compression, qos_setting)
+                var subscriber = new Subscriber<T>(id, topic, subscriptionHandler, out subscription, throttle_rate, queue_length, fragment_size, compression, qos_profile)
                 {
                     DoEnsureThreadSafety = ensureThreadSafety
                 };
@@ -294,7 +293,7 @@ namespace RosSharp.RosBridgeClient
             where TActionResult : Message
         {
             string id = GetUnusedCounterID(ActionConsumers, action);
-            ActionConsumers.Add(id , new ActionConsumer<TActionResult, Message>(
+            ActionConsumers.Add(id, new ActionConsumer<TActionResult, Message>(
                 id,
                 action,
                 actionCancelResponseHandler: actionCancelResponseHandler)
