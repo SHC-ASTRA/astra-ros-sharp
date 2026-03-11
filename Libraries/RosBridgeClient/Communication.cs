@@ -33,7 +33,6 @@ limitations under the License.
     © ASTRA - of the Space Hardware Club at UAH 2026, Roald Schaum, roaldschaum2019@gmail.com
 */
 
-
 using System.Text.Json.Serialization;
 
 namespace RosSharp.RosBridgeClient
@@ -55,14 +54,14 @@ namespace RosSharp.RosBridgeClient
         public string type { get; set; } // required
 
 #if ROS2
-        public QOS qos_setting { get; set; } // optional
+        public QOS qos { get; set; } // optional
 
-        internal Advertisement(string id, string topic, string type, QOS qos_setting = null) : base(id)
+        internal Advertisement(string id, string topic, string type, QOS qos_profile = null) : base(id)
         {
             this.op = "advertise";
             this.topic = topic;
             this.type = type;
-            this.qos_setting = qos_setting;
+            this.qos = qos_profile;
         }
 #else
         internal Advertisement(string id, string topic, string type) : base(id)
@@ -90,12 +89,24 @@ namespace RosSharp.RosBridgeClient
         public string topic { get; set; } // required
         public T msg { get; set; } // required
 
+#if ROS2
+        public QOS qos { get; set; } //optional
+
+        internal Publication(string id, string topic, T msg, QOS qos_profile = null) : base(id)
+        {
+            this.op = "publish";
+            this.topic = topic;
+            this.msg = msg;
+            this.qos = qos_profile;
+        }
+#else
         internal Publication(string id, string topic, T msg) : base(id)
         {
             this.op = "publish";
             this.topic = topic;
             this.msg = msg;
         }
+#endif
     }
 
     internal class Subscription : Communication
@@ -108,9 +119,9 @@ namespace RosSharp.RosBridgeClient
         public string compression { get; set; } // optional
 
 #if ROS2
-        public QOS qos_setting { get; set; } //optional
+        public QOS qos { get; set; } //optional
 
-        internal Subscription(string id, string topic, string type, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", QOS qos_setting = null) : base(id)
+        internal Subscription(string id, string topic, string type, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", QOS qos_profile = null) : base(id)
         {
             this.op = "subscribe";
             this.topic = topic;
@@ -119,7 +130,7 @@ namespace RosSharp.RosBridgeClient
             this.queue_length = queue_length;
             this.fragment_size = fragment_size;
             this.compression = compression;
-            this.qos_setting = qos_setting;
+            this.qos = qos_profile;
         }
 #else
         internal Subscription(string id, string topic, string type, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none") : base(id)

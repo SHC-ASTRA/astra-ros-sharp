@@ -63,7 +63,7 @@ namespace RosSharp.RosBridgeClient
         internal ISerializer Serializer;
         private object SubscriberLock = new object();
 
-        public RosSocket(IProtocol protocol, SerializerEnum serializer = SerializerEnum.Microsoft)
+        public RosSocket(IProtocol protocol, SerializerEnum serializer = SerializerEnum.Newtonsoft_JSON)
         {
             this.protocol = protocol;
 
@@ -114,15 +114,14 @@ namespace RosSharp.RosBridgeClient
         #region Publishers
 
 #if ROS2
-        public string Advertise<T>(string topic, QOS qos_setting = null) where T : Message
+        public string Advertise<T>(string topic, QOS qos_profile = null) where T : Message
         {
             string id = topic;
-            qos_setting ??= QOS.Presets.Default;
 
             if (Publishers.ContainsKey(id))
                 Unadvertise(id);
 
-            Publishers.Add(id, new Publisher<T>(id, topic, out Advertisement advertisement, qos_setting));
+            Publishers.Add(id, new Publisher<T>(id, topic, out Advertisement advertisement, qos_profile));
             Send(advertisement);
             return id;
         }
@@ -155,17 +154,16 @@ namespace RosSharp.RosBridgeClient
         #region Subscribers
 
 #if ROS2
-        public string Subscribe<T>(string topic, SubscriptionHandler<T> subscriptionHandler, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", bool ensureThreadSafety = false, QOS qos_setting = null) where T : Message
+        public string Subscribe<T>(string topic, SubscriptionHandler<T> subscriptionHandler, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", bool ensureThreadSafety = false, QOS qos_profile = null) where T : Message
         {
             string id;
             lock (SubscriberLock)
             {
                 id = GetUnusedCounterID(Subscribers, topic);
-                qos_setting ??= QOS.Presets.Default;
 
                 Subscription subscription;
 
-                var subscriber = new Subscriber<T>(id, topic, subscriptionHandler, out subscription, throttle_rate, queue_length, fragment_size, compression, qos_setting)
+                var subscriber = new Subscriber<T>(id, topic, subscriptionHandler, out subscription, throttle_rate, queue_length, fragment_size, compression, qos_profile)
                 {
                     DoEnsureThreadSafety = ensureThreadSafety
                 };

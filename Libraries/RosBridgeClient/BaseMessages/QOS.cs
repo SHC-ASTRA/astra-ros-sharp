@@ -1,6 +1,7 @@
 /*
 © ASTRA - of the Space Hardware Club at UAH, 2026
 Author: Roald Schaum, roaldschaum2019@gmail.com
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -23,11 +24,11 @@ namespace RosSharp.RosBridgeClient
         public Policy.Reliability ReliabilityPolicy;
         public Policy.Durability DurabilityPolicy;
 
-        public rmw_time_s Deadline;
-        public rmw_time_s Lifespan;
+        public Duration Deadline;
+        public Duration Lifespan;
 
         public Policy.Liveliness LivelinessPolicy;
-        public rmw_time_s LivelinessLeaseDuration;
+        public Duration LivelinessLeaseDuration;
 
         public bool AvoidRosNamespaceConventions;
 
@@ -59,10 +60,10 @@ namespace RosSharp.RosBridgeClient
             Depth = depth;
             ReliabilityPolicy = reliability;
             DurabilityPolicy = durability;
-            Deadline = rmw_time_s.DoubleToTime(deadline);
-            Lifespan = rmw_time_s.DoubleToTime(lifespan);
+            Deadline = Duration.DoubleToTime(deadline);
+            Lifespan = Duration.DoubleToTime(lifespan);
             LivelinessPolicy = liveliness;
-            LivelinessLeaseDuration = rmw_time_s.DoubleToTime(leaseDuration);
+            LivelinessLeaseDuration = Duration.DoubleToTime(leaseDuration);
             AvoidRosNamespaceConventions = avoidRosNamespaceConventions;
         }
 
@@ -71,10 +72,10 @@ namespace RosSharp.RosBridgeClient
             uint depth,
             Policy.Reliability reliability,
             Policy.Durability durability,
-            rmw_time_s deadline,
-            rmw_time_s lifespan,
+            Duration deadline,
+            Duration lifespan,
             Policy.Liveliness liveliness,
-            rmw_time_s leaseDuration,
+            Duration leaseDuration,
             bool avoidRosNamespaceConventions)
         {
             HistoryPolicy = history;
@@ -93,219 +94,162 @@ namespace RosSharp.RosBridgeClient
         {
             /// <summary> Default QOS profile </summary>
             public static readonly QOS Default = new QOS(
-                Policy.History.KEEP_LAST,
+                Policy.History.Keep_last,
                 10,
-                Policy.Reliability.RELIABLE,
-                Policy.Durability.VOLATILE,
-                Policy.DURATION_UNSPECIFIED,
-                Policy.DURATION_UNSPECIFIED,
-                Policy.Liveliness.SYSTEM_DEFAULT,
-                Policy.DURATION_UNSPECIFIED,
+                Policy.Reliability.Reliable,
+                Policy.Durability.Volatile,
+                Policy.Duration_Unspecified,
+                Policy.Duration_Unspecified,
+                Policy.Liveliness.System_Default,
+                Policy.Duration_Unspecified,
                 false);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS SensorData = new QOS(
-                Policy.History.KEEP_LAST,
+                Policy.History.Keep_last,
                 5,
-                Policy.Reliability.BEST_EFFORT,
-                Policy.Durability.VOLATILE,
-                Policy.DURATION_UNSPECIFIED,
-                Policy.DURATION_UNSPECIFIED,
-                Policy.Liveliness.SYSTEM_DEFAULT,
-                Policy.DURATION_UNSPECIFIED,
+                Policy.Reliability.Best_Effort,
+                Policy.Durability.Volatile,
+                Policy.Duration_Unspecified,
+                Policy.Duration_Unspecified,
+                Policy.Liveliness.System_Default,
+                Policy.Duration_Unspecified,
                 false);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS Services = new QOS(
-                Policy.History.KEEP_LAST,
+                Policy.History.Keep_last,
                 10,
-                Policy.Reliability.RELIABLE,
-                Policy.Durability.VOLATILE,
-                Policy.DURATION_UNSPECIFIED,
-                Policy.DURATION_UNSPECIFIED,
-                Policy.Liveliness.SYSTEM_DEFAULT,
-                Policy.DURATION_UNSPECIFIED,
+                Policy.Reliability.Reliable,
+                Policy.Durability.Volatile,
+                Policy.Duration_Unspecified,
+                Policy.Duration_Unspecified,
+                Policy.Liveliness.System_Default,
+                Policy.Duration_Unspecified,
                 false);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS ParameterEvents = new QOS(
-                Policy.History.KEEP_LAST,
+                Policy.History.Keep_last,
                 1000,
-                Policy.Reliability.RELIABLE,
-                Policy.Durability.VOLATILE,
-                Policy.DURATION_UNSPECIFIED,
-                Policy.DURATION_UNSPECIFIED,
-                Policy.Liveliness.SYSTEM_DEFAULT,
-                Policy.DURATION_UNSPECIFIED,
+                Policy.Reliability.Reliable,
+                Policy.Durability.Volatile,
+                Policy.Duration_Unspecified,
+                Policy.Duration_Unspecified,
+                Policy.Liveliness.System_Default,
+                Policy.Duration_Unspecified,
                 false);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS Rosout = new QOS(
-                Policy.History.KEEP_LAST,
+                Policy.History.Keep_last,
                 1000,
-                Policy.Reliability.RELIABLE,
-                Policy.Durability.TRANSIENT_LOCAL,
-                Policy.DURATION_UNSPECIFIED,
-                new rmw_time_s(10, 0),
-                Policy.Liveliness.SYSTEM_DEFAULT,
-                Policy.DURATION_UNSPECIFIED,
+                Policy.Reliability.Reliable,
+                Policy.Durability.Transient_Local,
+                Policy.Duration_Unspecified,
+                new Duration(10, 0),
+                Policy.Liveliness.System_Default,
+                Policy.Duration_Unspecified,
                 false);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS SystemDefault = new QOS(
-                Policy.History.SYSTEM_DEFAULT,
+                Policy.History.System_Default,
                 0,
-                Policy.Reliability.SYSTEM_DEFAULT,
-                Policy.Durability.SYSTEM_DEFAULT,
-                Policy.DURATION_UNSPECIFIED,
-                Policy.DURATION_UNSPECIFIED,
-                Policy.Liveliness.SYSTEM_DEFAULT,
-                Policy.DURATION_UNSPECIFIED,
+                Policy.Reliability.System_Default,
+                Policy.Durability.System_Default,
+                Policy.Duration_Unspecified,
+                Policy.Duration_Unspecified,
+                Policy.Liveliness.System_Default,
+                Policy.Duration_Unspecified,
                 false);
         }
 
         public static class Policy
         {
-            public static rmw_time_s DURATION_UNSPECIFIED = new rmw_time_s(0ul, 0ul);
-            public static rmw_time_s DURATION_INFINITE = new rmw_time_s(9223372036ul, 854775807ul);
+            public static Duration Duration_Unspecified = new Duration(0ul, 0ul);
+            public static Duration Duration_Infinite = new Duration(9223372036ul, 854775807ul);
 
             public enum History
             {
-                /// Implementation default for history policy
-                SYSTEM_DEFAULT,
+                /// <summary> Implementation default for history policy </summary>
+                System_Default = 0,
 
-                /// Only store up to a maximum number of samples, dropping oldest once max is exceeded
-                KEEP_LAST,
+                /// <summary> Only store up to a maximum number of samples, dropping oldest once max is exceeded </summary>
+                Keep_last = 1,
 
-                /// Store all samples, subject to resource limits
-                KEEP_ALL,
+                /// <summary> Store all samples, subject to resource limits </summary>
+                Keep_All = 2,
 
-                /// History policy has not yet been set
-                UNKNOWN
+                /// <summary> History policy has not yet been set </summary>
+                Unknown = 3
             }
             public enum Reliability
             {
-                /// Implementation specific default
-                SYSTEM_DEFAULT,
+                /// <summary> Implementation specific default </summary>
+                System_Default = 0,
 
-                /// Guarantee that samples are delivered, may retry multiple times.
-                RELIABLE,
+                /// <summary> Guarantee that samples are delivered, may retry multiple times </summary>
+                Reliable = 1,
 
-                /// Attempt to deliver samples, but some may be lost if the network is not robust
-                BEST_EFFORT,
+                /// <summary> Attempt to deliver samples, but some may be lost if the network is not robust </summary>
+                Best_Effort = 2,
 
-                /// Reliability policy has not yet been set
-                UNKNOWN,
-
-                /// Will match the majority of endpoints and use a reliable policy if possible
-                /**
-                 * A policy will be chosen at the time of creating a subscription or publisher.
-                 * A reliable policy will by chosen if it matches with all discovered endpoints,
-                 * otherwise a best effort policy will be chosen.
-                 *
-                 * The QoS policy reported by functions like `rmw_subscription_get_actual_qos` or
-                 * `rmw_publisher_get_actual_qos` may be best available, reliable, or best effort.
-                 *
-                 * Services and clients are not supported and default to the reliability value in
-                 * `rmw_qos_profile_services_default`.
-                 *
-                 * The middleware is not expected to update the policy after creating a subscription or
-                 * publisher, even if the chosen policy is incompatible with newly discovered endpoints.
-                 * Therefore, this policy should be used with care since non-deterministic behavior
-                 * can occur due to races with discovery.
-                 */
-                BEST_AVAILABLE
+                /// <summary> Reliability policy has not yet been set </summary>
+                Unknown = 3,
             }
             public enum Durability
             {
-                /// Impplementation specific default
-                SYSTEM_DEFAULT,
+                /// <summary> Implementation specific default </summary>
+                System_Default = 0,
 
-                /// The rmw publisher is responsible for persisting samples for “late-joining” subscribers
-                TRANSIENT_LOCAL,
+                /// <summary> The rmw publisher is responsible for persisting samples for “late-joining” subscribers </summary>
+                Transient_Local = 1,
 
-                /// Samples are not persistent
-                VOLATILE,
+                /// <summary> Samples are not persistent </summary>
+                Volatile = 2,
 
-                /// Durability policy has not yet been set
-                UNKNOWN,
-
-                /// Will match the majority of endpoints and use a transient local policy if possible
-                /**
-                 * A policy will be chosen at the time of creating a subscription or publisher.
-                 * A transient local policy will by chosen if it matches with all discovered endpoints,
-                 * otherwise a volatile policy will be chosen.
-                 *
-                 * In the case that a volatile policy is chosen for a subscription, any messages sent before
-                 * the subscription was created by transient local publishers will not be received.
-                 *
-                 * The QoS policy reported by functions like `rmw_subscription_get_actual_qos` or
-                 * `rmw_publisher_get_actual_qos` may be best available, transient local, or volatile.
-                 *
-                 * Services and clients are not supported and default to the durability value in
-                 * `rmw_qos_profile_services_default`.
-                 *
-                 * The middleware is not expected to update the policy after creating a subscription or
-                 * publisher, even if the chosen policy is incompatible with newly discovered endpoints.
-                 * Therefore, this policy should be used with care since non-deterministic behavior
-                 * can occur due to races with discovery.
-                 */
-                BEST_AVAILABLE
+                /// <summary> Durability policy has not yet been set </summary>
+                Unknown = 3,
             }
 
             public enum Liveliness
             {
-                /// Implementation specific default
-                SYSTEM_DEFAULT = 0,
+                /// <summary> Implementation specific default </summary>
+                System_Default = 0,
 
-                /// The signal that establishes a Topic is alive comes from the ROS rmw layer.
-                AUTOMATIC = 1,
+                /// <summary> The signal that establishes a Topic is alive comes from the ROS rmw layer </summary>
+                Automatic = 1,
 
-                /// The signal that establishes a Topic is alive is at the Topic level. Only publishing a message
+                /// <summary> The signal that establishes a Topic is alive is at the Topic level. Only publishing a message
                 /// on the Topic or an explicit signal from the application to assert liveliness on the Topic
                 /// will mark the Topic as being alive.
-                // Using `3` for backwards compatibility.
-                MANUAL_BY_TOPIC = 3,
+                // Using `3` for backwards compatibility. </summary>
+                Manual_By_Topic = 3,
 
-                /// Liveliness policy has not yet been set
-                UNKNOWN = 4,
-
-                /// Will match the majority of endpoints and use a manual by topic policy if possible
-                /**
-                 * A policy will be chosen at the time of creating a subscription or publisher.
-                 * A manual by topic policy will by chosen if it matches with all discovered endpoints,
-                 * otherwise an automatic policy will be chosen.
-                 *
-                 * The QoS policy reported by functions like `rmw_subscription_get_actual_qos` or
-                 * `rmw_publisher_get_actual_qos` may be best available, automatic, or manual by topic.
-                 *
-                 * Services and clients are not supported and default to the liveliness value in
-                 * `rmw_qos_profile_services_default`.
-                 *
-                 * The middleware is not expected to update the policy after creating a subscription or
-                 * publisher, even if the chosen policy is incompatible with newly discovered endpoints.
-                 * Therefore, this policy should be used with care since non-deterministic behavior
-                 * can occur due to races with discovery.
-                 */
-                BEST_AVAILABLE = 5
+                /// Liveliness policy has not yet been set </summary>
+                Unknown = 4,
             }
         }
 
-        public class rmw_time_s
+        public class Duration
         {
             public ulong Seconds;
             public ulong Nanoseconds;
-            public rmw_time_s(ulong seconds, ulong nanoseconds)
+            public Duration(ulong seconds, ulong nanoseconds)
             {
                 Seconds = seconds;
                 Nanoseconds = nanoseconds;
             }
 
-            public static rmw_time_s DoubleToTime(double time)
+            public static Duration DoubleToTime(double time)
             {
-                ulong seconds = (ulong)(time);
-                ulong nseconds = (ulong)((time - seconds) * 1000000000);
-                return new rmw_time_s(seconds, nseconds);
+                const ulong kcubed = 1000 * 1000 * 1000;
+                double ftime = System.Math.Floor(time);
+
+                ulong seconds = (ulong)(ftime);
+                ulong nseconds = (ulong)((time - ftime) * kcubed);
+                return new Duration(seconds, nseconds);
             }
         }
     }
