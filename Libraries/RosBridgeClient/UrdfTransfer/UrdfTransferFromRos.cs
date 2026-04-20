@@ -16,8 +16,8 @@ limitations under the License.
 * If no RosConnector component is present in the scene, one can be created by pressing the button.
 * RosConnector specific input fields have been removed as they are no longer required.
 * Robot name parameter input field added.
-* The 'Reset to Default' button now behaves according to the selected ROS version (from the RosConnector component). 
-* Added GUI hints for parameter syntax. 
+* The 'Reset to Default' button now behaves according to the selected ROS version (from the RosConnector component).
+* Added GUI hints for parameter syntax.
     (C) Siemens AG, 2024, Mehmet Emre Cakal (emre.cakal@siemens.com/m.emrecakal@gmail.com)
 */
 
@@ -76,11 +76,9 @@ namespace RosSharp.RosBridgeClient.UrdfTransfer
             RosSocket.CallService<rosapi.GetParamRequest, rosapi.GetParamResponse>("/rosapi/get_param",
                                                                                     ReceiveRobotName,
                                                                                     new rosapi.GetParamRequest(robotNameParameter, CutAfterColon(robotNameParameter)));
-
             var robotDescriptionReceiver = new ServiceReceiver<rosapi.GetParamRequest, rosapi.GetParamResponse>(RosSocket, "/rosapi/get_param",
                                                                                         new rosapi.GetParamRequest(urdfParameter, DEFAULT_STRING),
                                                                                         Path.DirectorySeparatorChar + CutAfterColon(urdfParameter) + ".urdf");
-
             robotDescriptionReceiver.ReceiveEventHandler += ReceiveRobotDescription;
         }
         private void ReceiveRobotName(object serviceResponse)

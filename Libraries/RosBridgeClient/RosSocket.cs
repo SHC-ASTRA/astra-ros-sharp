@@ -328,9 +328,9 @@ namespace RosSharp.RosBridgeClient
 #endif
         private void Send<T>(T communication) where T : Communication
         {
-            //var serialized = Serializer.Serialize(communication);
-            //DeserializedObject deserializedObject = Serializer.Deserialize(serialized);
-            //Console.WriteLine("Complete outgoing message: " + deserializedObject.GetAll());
+            // var serialized = Serializer.Serialize(communication);
+            // DeserializedObject deserializedObject = Serializer.Deserialize(serialized);
+            // Godot.GD.Print("Complete outgoing message: " + deserializedObject.GetAll());
             protocol.Send(Serializer.Serialize<T>(communication));
             return;
         }
