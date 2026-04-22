@@ -27,11 +27,6 @@ namespace RosSharp.RosBridgeClient
         public Duration Deadline;
         public Duration Lifespan;
 
-        public Policy.Liveliness LivelinessPolicy;
-        public Duration LivelinessLeaseDuration;
-
-        public bool AvoidRosNamespaceConventions;
-
         public QOS(QOS q)
         {
             HistoryPolicy = q.HistoryPolicy;
@@ -40,9 +35,6 @@ namespace RosSharp.RosBridgeClient
             DurabilityPolicy = q.DurabilityPolicy;
             Deadline = q.Deadline;
             Lifespan = q.Lifespan;
-            LivelinessPolicy = q.LivelinessPolicy;
-            LivelinessLeaseDuration = q.LivelinessLeaseDuration;
-            AvoidRosNamespaceConventions = q.AvoidRosNamespaceConventions;
         }
 
         public QOS(
@@ -51,10 +43,7 @@ namespace RosSharp.RosBridgeClient
             Policy.Reliability reliability,
             Policy.Durability durability,
             double deadline,
-            double lifespan,
-            Policy.Liveliness liveliness,
-            double leaseDuration,
-            bool avoidRosNamespaceConventions)
+            double lifespan)
         {
             HistoryPolicy = history;
             Depth = depth;
@@ -62,9 +51,6 @@ namespace RosSharp.RosBridgeClient
             DurabilityPolicy = durability;
             Deadline = Duration.DoubleToTime(deadline);
             Lifespan = Duration.DoubleToTime(lifespan);
-            LivelinessPolicy = liveliness;
-            LivelinessLeaseDuration = Duration.DoubleToTime(leaseDuration);
-            AvoidRosNamespaceConventions = avoidRosNamespaceConventions;
         }
 
         public QOS(
@@ -73,10 +59,7 @@ namespace RosSharp.RosBridgeClient
             Policy.Reliability reliability,
             Policy.Durability durability,
             Duration deadline,
-            Duration lifespan,
-            Policy.Liveliness liveliness,
-            Duration leaseDuration,
-            bool avoidRosNamespaceConventions)
+            Duration lifespan)
         {
             HistoryPolicy = history;
             Depth = depth;
@@ -84,9 +67,6 @@ namespace RosSharp.RosBridgeClient
             DurabilityPolicy = durability;
             Deadline = deadline;
             Lifespan = lifespan;
-            LivelinessPolicy = liveliness;
-            LivelinessLeaseDuration = leaseDuration;
-            AvoidRosNamespaceConventions = avoidRosNamespaceConventions;
         }
 
         /// <summary> Default QOS profiles as specified by the RMW qos_profiles.h file </summary>
@@ -99,10 +79,7 @@ namespace RosSharp.RosBridgeClient
                 Policy.Reliability.Reliable,
                 Policy.Durability.Volatile,
                 Policy.Duration_Unspecified,
-                Policy.Duration_Unspecified,
-                Policy.Liveliness.System_Default,
-                Policy.Duration_Unspecified,
-                false);
+                Policy.Duration_Unspecified);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS SensorData = new QOS(
@@ -111,10 +88,7 @@ namespace RosSharp.RosBridgeClient
                 Policy.Reliability.Best_Effort,
                 Policy.Durability.Volatile,
                 Policy.Duration_Unspecified,
-                Policy.Duration_Unspecified,
-                Policy.Liveliness.System_Default,
-                Policy.Duration_Unspecified,
-                false);
+                Policy.Duration_Unspecified);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS Services = new QOS(
@@ -123,10 +97,7 @@ namespace RosSharp.RosBridgeClient
                 Policy.Reliability.Reliable,
                 Policy.Durability.Volatile,
                 Policy.Duration_Unspecified,
-                Policy.Duration_Unspecified,
-                Policy.Liveliness.System_Default,
-                Policy.Duration_Unspecified,
-                false);
+                Policy.Duration_Unspecified);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS ParameterEvents = new QOS(
@@ -135,10 +106,7 @@ namespace RosSharp.RosBridgeClient
                 Policy.Reliability.Reliable,
                 Policy.Durability.Volatile,
                 Policy.Duration_Unspecified,
-                Policy.Duration_Unspecified,
-                Policy.Liveliness.System_Default,
-                Policy.Duration_Unspecified,
-                false);
+                Policy.Duration_Unspecified);
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS Rosout = new QOS(
@@ -147,10 +115,7 @@ namespace RosSharp.RosBridgeClient
                 Policy.Reliability.Reliable,
                 Policy.Durability.Transient_Local,
                 Policy.Duration_Unspecified,
-                new Duration(10, 0),
-                Policy.Liveliness.System_Default,
-                Policy.Duration_Unspecified,
-                false);
+                new Duration(10, 0));
 
             /// <summary> Default Sensor QOS profile </summary>
             public static readonly QOS SystemDefault = new QOS(
@@ -159,10 +124,7 @@ namespace RosSharp.RosBridgeClient
                 Policy.Reliability.System_Default,
                 Policy.Durability.System_Default,
                 Policy.Duration_Unspecified,
-                Policy.Duration_Unspecified,
-                Policy.Liveliness.System_Default,
-                Policy.Duration_Unspecified,
-                false);
+                Policy.Duration_Unspecified);
         }
 
         public static class Policy
@@ -211,24 +173,6 @@ namespace RosSharp.RosBridgeClient
 
                 /// <summary> Durability policy has not yet been set </summary>
                 Unknown = 3,
-            }
-
-            public enum Liveliness
-            {
-                /// <summary> Implementation specific default </summary>
-                System_Default = 0,
-
-                /// <summary> The signal that establishes a Topic is alive comes from the ROS rmw layer </summary>
-                Automatic = 1,
-
-                /// <summary> The signal that establishes a Topic is alive is at the Topic level. Only publishing a message
-                /// on the Topic or an explicit signal from the application to assert liveliness on the Topic
-                /// will mark the Topic as being alive.
-                // Using `3` for backwards compatibility. </summary>
-                Manual_By_Topic = 3,
-
-                /// Liveliness policy has not yet been set </summary>
-                Unknown = 4,
             }
         }
 
