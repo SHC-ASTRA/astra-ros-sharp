@@ -54,14 +54,14 @@ namespace RosSharp.RosBridgeClient
         public string type { get; set; } // required
 
 #if ROS2
-        public QOS qos { get; set; } // optional
+        public QOS qos_profile { get; set; } //optional
 
         internal Advertisement(string id, string topic, string type, QOS qos_profile = null) : base(id)
         {
             this.op = "advertise";
             this.topic = topic;
             this.type = type;
-            this.qos = qos_profile;
+            this.qos_profile = qos_profile;
         }
 #else
         internal Advertisement(string id, string topic, string type) : base(id)
@@ -90,14 +90,14 @@ namespace RosSharp.RosBridgeClient
         public T msg { get; set; } // required
 
 #if ROS2
-        public QOS qos { get; set; } //optional
+        public QOS qos_profile { get; set; } //optional
 
         internal Publication(string id, string topic, T msg, QOS qos_profile = null) : base(id)
         {
             this.op = "publish";
             this.topic = topic;
             this.msg = msg;
-            this.qos = qos_profile;
+            this.qos_profile = qos_profile;
         }
 #else
         internal Publication(string id, string topic, T msg) : base(id)
@@ -119,7 +119,7 @@ namespace RosSharp.RosBridgeClient
         public string compression { get; set; } // optional
 
 #if ROS2
-        public QOS qos { get; set; } //optional
+        public QOS qos_profile { get; set; } //optional
 
         internal Subscription(string id, string topic, string type, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", QOS qos_profile = null) : base(id)
         {
@@ -130,7 +130,7 @@ namespace RosSharp.RosBridgeClient
             this.queue_length = queue_length;
             this.fragment_size = fragment_size;
             this.compression = compression;
-            this.qos = qos_profile;
+            this.qos_profile = qos_profile;
         }
 #else
         internal Subscription(string id, string topic, string type, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none") : base(id)
