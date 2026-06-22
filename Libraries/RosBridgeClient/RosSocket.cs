@@ -118,6 +118,8 @@ namespace RosSharp.RosBridgeClient
         {
             string id = topic;
 
+            qos_profile ??= QOS.Presets.Default;
+
             if (Publishers.ContainsKey(id))
                 Unadvertise(id);
 
@@ -157,6 +159,9 @@ namespace RosSharp.RosBridgeClient
         public string Subscribe<T>(string topic, SubscriptionHandler<T> subscriptionHandler, int throttle_rate = 0, int queue_length = 1, int fragment_size = int.MaxValue, string compression = "none", bool ensureThreadSafety = false, QOS qos_profile = null) where T : Message
         {
             string id;
+
+            qos_profile ??= QOS.Presets.Default;
+
             lock (SubscriberLock)
             {
                 id = GetUnusedCounterID(Subscribers, topic);
