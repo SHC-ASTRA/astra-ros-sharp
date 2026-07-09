@@ -22,6 +22,9 @@ limitations under the License.
 		<arg name="port" value="9090" />
 	</include>
 
-	<node name="file_server" pkg="file_server" type="file_server" output="screen" />
+	<node pkg="file_server" type="file_server" name="file_server" output="screen">
+		<param name="allow_save"      value="false"/>
+		<param name="allow_overwrite" value="false"/>
+  	</node>
 
 </launch>

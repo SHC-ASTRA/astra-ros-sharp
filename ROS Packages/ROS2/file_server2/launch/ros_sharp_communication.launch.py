@@ -21,20 +21,28 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     # Define launch arguments
     port_arg = DeclareLaunchArgument('port', 
-                                     default_value='9090', 
-                                     description='Port number for ROS communication (default: 9090)')
+                                    default_value='9090', 
+                                    description='Port number for ROS communication (default: 9090)')
     
     fragment_timeout_arg = DeclareLaunchArgument('fragment_timeout',
-                                                  default_value='600', 
-                                                  description='Timeout for fragment reassembly in seconds (default: 600)')
+                                    default_value='600', 
+                                    description='Timeout for fragment reassembly in seconds (default: 600)')
     
     unregister_timeout_arg = DeclareLaunchArgument('unregister_timeout',
-                                                   default_value='10.0',
-                                                   description='Timeout for unregistering in seconds (default: 10.0)')
+                                    default_value='10.0',
+                                    description='Timeout for unregistering in seconds (default: 10.0)')
     
     max_message_size_arg = DeclareLaunchArgument('max_message_size',
-                                                 default_value='100000000',
-                                                 description='Maximum message size in bytes (default: 10000000)')
+                                    default_value='100000000',
+                                    description='Maximum message size in bytes (default: 10000000)')
+
+    allow_save_arg = DeclareLaunchArgument('allow_save',
+                                    default_value='false',
+                                    description='Enable saving files (default: false)')
+
+    allow_overwrite_arg = DeclareLaunchArgument('allow_overwrite',
+                                    default_value='false',
+                                    description='Allow overwrite of existing files (default: false)')
 
     pkg_rosbridge_server = get_package_share_directory('rosbridge_server')
 
@@ -46,6 +54,8 @@ def generate_launch_description():
         fragment_timeout_arg,
         unregister_timeout_arg,
         max_message_size_arg,
+        allow_save_arg,
+        allow_overwrite_arg,
 
         IncludeLaunchDescription(
             FrontendLaunchDescriptionSource([rosbridge_server_launch]),
@@ -60,7 +70,11 @@ def generate_launch_description():
         Node(
             package='file_server2',
             executable='file_server2_node',
-            output='screen'
+            output='screen',
+            parameters=[
+                {'allow_save': LaunchConfiguration('allow_save')},
+                {'allow_overwrite': LaunchConfiguration('allow_overwrite')}
+            ]
         )
         
     ])

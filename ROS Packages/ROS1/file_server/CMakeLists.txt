@@ -188,5 +188,6 @@ include_directories(
 # catkin_add_nosetests(test)
 
 add_executable(file_server src/file_server.cpp)
-target_link_libraries(file_server ${catkin_LIBRARIES})
+target_compile_features(file_server PRIVATE cxx_std_17)
+target_link_libraries(file_server ${catkin_LIBRARIES} stdc++fs)
 add_dependencies(file_server file_server_gencpp)

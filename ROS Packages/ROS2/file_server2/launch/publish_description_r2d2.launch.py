@@ -20,8 +20,17 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     # Define launch arguments
-    port_arg = DeclareLaunchArgument('port', default_value='9090', description='Port number for ROS communication')
-    urdf_file_arg = DeclareLaunchArgument('urdf_file', default_value='custom_r2d2.urdf', description='URDF file name')
+    port_arg = DeclareLaunchArgument('port', default_value='9090', 
+                                        description='Port number for ROS communication')
+
+    urdf_file_arg = DeclareLaunchArgument('urdf_file', default_value='custom_r2d2.urdf', 
+                                        description='URDF file name')
+
+    allow_save_arg = DeclareLaunchArgument('allow_save', default_value='false',
+                                        description='Enable saving files (default: false)')
+                                       
+    allow_overwrite_arg = DeclareLaunchArgument('allow_overwrite', default_value='false',
+                                        description='Allow overwrite of existing files (default: false)')
 
     # Define paths
     pkg_file_server2 = get_package_share_directory('file_server2')
@@ -41,7 +50,11 @@ def generate_launch_description():
     # Include ROS Sharp Communication launch file
     ros_sharp_communication_launch = IncludeLaunchDescription(
             PythonLaunchDescriptionSource([rosbridge_server_launch_file]),
-                launch_arguments=[('port', LaunchConfiguration('port'))]
+                launch_arguments={
+                    'port': LaunchConfiguration('port'),
+                    'allow_save': LaunchConfiguration('allow_save'),
+                    'allow_overwrite': LaunchConfiguration('allow_overwrite')
+                }.items()
         )
     
     r2d2_launch = IncludeLaunchDescription(
@@ -60,6 +73,8 @@ def generate_launch_description():
     return LaunchDescription([
         port_arg,
         urdf_file_arg,
+        allow_save_arg,
+        allow_overwrite_arg,
         ros_sharp_communication_launch,
         r2d2_launch,
         # joint_state_publisher_node
