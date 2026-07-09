@@ -87,9 +87,11 @@ namespace RosSharp.RosBridgeClient
         internal abstract string Topic { get; }
 #if ROS2
         internal abstract QOS Qos { get; }
-#endif
 
+        internal abstract Communication Publish(Message message, QOS profile);
+#else
         internal abstract Communication Publish(Message message);
+#endif
 
         internal Unadvertisement Unadvertise()
         {
@@ -111,6 +113,11 @@ namespace RosSharp.RosBridgeClient
             Qos = qos_profile;
             advertisement = new Advertisement(Id, Topic, GetRosName<T>(), Qos);
         }
+
+        internal override Communication Publish(Message message, QOS profile)
+        {
+            return new Publication<T>(Id, Topic, (T)message, profile);
+        }
 #else
         internal Publisher(string id, string topic, out Advertisement advertisement)
         {
@@ -118,12 +125,12 @@ namespace RosSharp.RosBridgeClient
             Topic = topic;
             advertisement = new Advertisement(Id, Topic, GetRosName<T>());
         }
-#endif
 
         internal override Communication Publish(Message message)
         {
             return new Publication<T>(Id, Topic, (T)message);
         }
+#endif
     }
 
     internal abstract class Subscriber : Communicator

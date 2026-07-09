@@ -140,6 +140,20 @@ namespace RosSharp.RosBridgeClient
         }
 #endif
 
+#if ROS2
+        public void Publish(string id, Message message, QOS profile)
+        {
+            profile ??= QOS.Presets.Default;
+
+            Send(Publishers[id].Publish(message, profile));
+        }
+
+        public void Unadvertise(string id)
+        {
+            Send(Publishers[id].Unadvertise());
+            Publishers.Remove(id);
+        }
+#else
         public void Publish(string id, Message message)
         {
             Send(Publishers[id].Publish(message));
@@ -150,7 +164,7 @@ namespace RosSharp.RosBridgeClient
             Send(Publishers[id].Unadvertise());
             Publishers.Remove(id);
         }
-
+#endif
         #endregion
 
         #region Subscribers
@@ -331,15 +345,12 @@ namespace RosSharp.RosBridgeClient
         #endregion
 
 #endif
+
         private void Send<T>(T communication) where T : Communication
         {
-            // var serialized = Serializer.Serialize(communication);
-            // DeserializedObject deserializedObject = Serializer.Deserialize(serialized);
-            // Godot.GD.Print("Complete outgoing message: " + deserializedObject.GetAll());
             protocol.Send(Serializer.Serialize<T>(communication));
             return;
         }
-
         private void Receive(object sender, EventArgs e)
         {
             byte[] buffer = ((MessageEventArgs)e).RawData;

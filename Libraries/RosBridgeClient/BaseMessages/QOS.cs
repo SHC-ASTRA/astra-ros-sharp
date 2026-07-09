@@ -12,29 +12,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+using System;
+
 namespace RosSharp.RosBridgeClient
 {
 #if ROS2
-    public class QOS
+    public record QOS(string history, uint depth, string reliability, string durability, Duration deadline, Duration lifespan)
     {
-        public Policy.History HistoryPolicy;
-
-        public uint Depth;
-
-        public Policy.Reliability ReliabilityPolicy;
-        public Policy.Durability DurabilityPolicy;
-
-        public Duration Deadline;
-        public Duration Lifespan;
-
         public QOS(QOS q)
         {
-            HistoryPolicy = q.HistoryPolicy;
-            Depth = q.Depth;
-            ReliabilityPolicy = q.ReliabilityPolicy;
-            DurabilityPolicy = q.DurabilityPolicy;
-            Deadline = q.Deadline;
-            Lifespan = q.Lifespan;
+            history = q.history;
+            depth = q.depth;
+            reliability = q.reliability;
+            durability = q.durability;
+            deadline = q.deadline;
+            lifespan = q.lifespan;
         }
 
         public QOS(
@@ -43,15 +35,15 @@ namespace RosSharp.RosBridgeClient
             Policy.Reliability reliability,
             Policy.Durability durability,
             double deadline,
-            double lifespan)
-        {
-            HistoryPolicy = history;
-            Depth = depth;
-            ReliabilityPolicy = reliability;
-            DurabilityPolicy = durability;
-            Deadline = Duration.DoubleToTime(deadline);
-            Lifespan = Duration.DoubleToTime(lifespan);
-        }
+            double lifespan) :
+        this(
+                Enum.GetName(history),
+                depth,
+                Enum.GetName(reliability),
+                Enum.GetName(durability),
+                Duration.DoubleToTime(deadline),
+                Duration.DoubleToTime(lifespan))
+        { }
 
         public QOS(
             Policy.History history,
@@ -59,142 +51,131 @@ namespace RosSharp.RosBridgeClient
             Policy.Reliability reliability,
             Policy.Durability durability,
             Duration deadline,
-            Duration lifespan)
-        {
-            HistoryPolicy = history;
-            Depth = depth;
-            ReliabilityPolicy = reliability;
-            DurabilityPolicy = durability;
-            Deadline = deadline;
-            Lifespan = lifespan;
-        }
+            Duration lifespan) :
+        this(
+            Enum.GetName(history),
+            depth,
+            Enum.GetName(reliability),
+            Enum.GetName(durability),
+            deadline,
+            lifespan)
+        { }
 
         /// <summary> Default QOS profiles as specified by the RMW qos_profiles.h file </summary>
         public class Presets
         {
             /// <summary> Default QOS profile </summary>
-            public static readonly QOS Default = new QOS(
-                Policy.History.Keep_last,
+            public static readonly QOS Default = new(
+                Policy.History.KEEP_LAST,
                 10,
-                Policy.Reliability.Reliable,
-                Policy.Durability.Volatile,
+                Policy.Reliability.RELIABLE,
+                Policy.Durability.VOLATILE,
                 Policy.Duration_Unspecified,
                 Policy.Duration_Unspecified);
 
             /// <summary> Default Sensor QOS profile </summary>
-            public static readonly QOS SensorData = new QOS(
-                Policy.History.Keep_last,
+            public static readonly QOS SensorData = new(
+                Policy.History.KEEP_LAST,
                 5,
-                Policy.Reliability.Best_Effort,
-                Policy.Durability.Volatile,
+                Policy.Reliability.BEST_EFFORT,
+                Policy.Durability.VOLATILE,
                 Policy.Duration_Unspecified,
                 Policy.Duration_Unspecified);
 
             /// <summary> Default Sensor QOS profile </summary>
-            public static readonly QOS Services = new QOS(
-                Policy.History.Keep_last,
+            public static readonly QOS Services = new(
+                Policy.History.KEEP_LAST,
                 10,
-                Policy.Reliability.Reliable,
-                Policy.Durability.Volatile,
+                Policy.Reliability.RELIABLE,
+                Policy.Durability.VOLATILE,
                 Policy.Duration_Unspecified,
                 Policy.Duration_Unspecified);
 
             /// <summary> Default Sensor QOS profile </summary>
-            public static readonly QOS ParameterEvents = new QOS(
-                Policy.History.Keep_last,
+            public static readonly QOS ParameterEvents = new(
+                Policy.History.KEEP_LAST,
                 1000,
-                Policy.Reliability.Reliable,
-                Policy.Durability.Volatile,
+                Policy.Reliability.RELIABLE,
+                Policy.Durability.VOLATILE,
                 Policy.Duration_Unspecified,
                 Policy.Duration_Unspecified);
 
             /// <summary> Default Sensor QOS profile </summary>
-            public static readonly QOS Rosout = new QOS(
-                Policy.History.Keep_last,
+            public static readonly QOS Rosout = new(
+                Policy.History.KEEP_LAST,
                 1000,
-                Policy.Reliability.Reliable,
-                Policy.Durability.Transient_Local,
+                Policy.Reliability.RELIABLE,
+                Policy.Durability.TRANSIENT_LOCAL,
                 Policy.Duration_Unspecified,
                 new Duration(10, 0));
 
             /// <summary> Default Sensor QOS profile </summary>
-            public static readonly QOS SystemDefault = new QOS(
-                Policy.History.System_Default,
+            public static readonly QOS SystemDefault = new(
+                Policy.History.SYSTEM_DEFAULT,
                 0,
-                Policy.Reliability.System_Default,
-                Policy.Durability.System_Default,
+                Policy.Reliability.SYSTEM_DEFAULT,
+                Policy.Durability.SYSTEM_DEFAULT,
                 Policy.Duration_Unspecified,
                 Policy.Duration_Unspecified);
         }
 
         public static class Policy
         {
-            public static Duration Duration_Unspecified = new Duration(0ul, 0ul);
-            public static Duration Duration_Infinite = new Duration(9223372036ul, 854775807ul);
+            public static Duration Duration_Unspecified
+            {
+                get;
+                private set;
+            } = new(0ul, 0ul);
+            public static Duration Duration_Infinite
+            {
+                get;
+                private set;
+            } = new(9223372036ul, 854775807ul);
 
             public enum History
             {
                 /// <summary> Implementation default for history policy </summary>
-                System_Default = 0,
+                SYSTEM_DEFAULT,
 
                 /// <summary> Only store up to a maximum number of samples, dropping oldest once max is exceeded </summary>
-                Keep_last = 1,
+                KEEP_LAST,
 
                 /// <summary> Store all samples, subject to resource limits </summary>
-                Keep_All = 2,
-
-                /// <summary> History policy has not yet been set </summary>
-                Unknown = 3
+                KEEP_ALL,
             }
             public enum Reliability
             {
                 /// <summary> Implementation specific default </summary>
-                System_Default = 0,
+                SYSTEM_DEFAULT,
 
                 /// <summary> Guarantee that samples are delivered, may retry multiple times </summary>
-                Reliable = 1,
+                RELIABLE,
 
                 /// <summary> Attempt to deliver samples, but some may be lost if the network is not robust </summary>
-                Best_Effort = 2,
-
-                /// <summary> Reliability policy has not yet been set </summary>
-                Unknown = 3,
+                BEST_EFFORT,
             }
+
             public enum Durability
             {
                 /// <summary> Implementation specific default </summary>
-                System_Default = 0,
+                SYSTEM_DEFAULT,
 
                 /// <summary> The rmw publisher is responsible for persisting samples for “late-joining” subscribers </summary>
-                Transient_Local = 1,
+                TRANSIENT_LOCAL,
 
                 /// <summary> Samples are not persistent </summary>
-                Volatile = 2,
-
-                /// <summary> Durability policy has not yet been set </summary>
-                Unknown = 3,
+                VOLATILE,
             }
         }
 
-        public class Duration
+    }
+    public record Duration(ulong secs = 0, ulong nsecs = 0)
+    {
+        public static Duration DoubleToTime(double time)
         {
-            public ulong Seconds;
-            public ulong Nanoseconds;
-            public Duration(ulong seconds, ulong nanoseconds)
-            {
-                Seconds = seconds;
-                Nanoseconds = nanoseconds;
-            }
-
-            public static Duration DoubleToTime(double time)
-            {
-                const ulong kcubed = 1000 * 1000 * 1000;
-                double ftime = System.Math.Floor(time);
-
-                ulong seconds = (ulong)(ftime);
-                ulong nseconds = (ulong)((time - ftime) * kcubed);
-                return new Duration(seconds, nseconds);
-            }
+            const ulong kcubed = 1000 * 1000 * 1000;
+            double ftime = Math.Floor(time);
+            return new Duration((ulong)ftime, (ulong)((time - ftime) * kcubed));
         }
     }
 #endif
